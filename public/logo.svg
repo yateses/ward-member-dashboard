@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 120" width="400" height="120">
+  <!-- Left section with teal-blue background -->
+  <rect x="0" y="0" width="120" height="120" fill="#1a5f7a"/>
+  
+  <!-- Jesus Christ icon (simplified line art) -->
+  <g transform="translate(60, 60)">
+    <!-- Arch frame -->
+    <path d="M-25 -30 Q-25 -40 0 -40 Q25 -40 25 -30 L25 20 Q25 30 0 30 Q-25 30 -25 20 Z" 
+          fill="none" stroke="white" stroke-width="2"/>
+    
+    <!-- Jesus figure (simplified) -->
+    <circle cx="0" cy="-10" r="8" fill="white"/>
+    <rect x="-6" y="-2" width="12" height="20" fill="white"/>
+    <rect x="-8" y="8" width="16" height="8" fill="white"/>
+    <rect x="-4" y="-18" width="8" height="8" fill="white"/>
+  </g>
+  
+  <!-- Transition wave shapes -->
+  <path d="M120 40 Q140 20 160 40 Q180 60 200 40 Q220 20 240 40 Q260 60 280 40 Q300 20 320 40 L320 120 L120 120 Z" 
+        fill="#4a9bb8" opacity="0.3"/>
+  <path d="M120 60 Q140 40 160 60 Q180 80 200 60 Q220 40 240 60 Q260 80 280 60 Q300 40 320 60 L320 120 L120 120 Z" 
+        fill="#4a9bb8" opacity="0.2"/>
+  
+  <!-- Right section with white background -->
+  <rect x="120" y="0" width="280" height="120" fill="white"/>
+  
+  <!-- Church name text -->
+  <text x="140" y="35" font-family="Georgia, serif" font-size="14" font-weight="normal" fill="#2c3e50">THE CHURCH OF</text>
+  <text x="140" y="55" font-family="Georgia, serif" font-size="18" font-weight="bold" fill="#2c3e50">JESUS CHRIST</text>
+  <text x="140" y="75" font-family="Georgia, serif" font-size="14" font-weight="normal" fill="#2c3e50">OF LATTER-DAY SAINTS</text>
+</svg> 

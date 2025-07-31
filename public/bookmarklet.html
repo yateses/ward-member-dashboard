@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LCR Data Extractor Bookmarklet</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            line-height: 1.6;
+            color: #333;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        .bookmarklet {
+            background: #3498db;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: bold;
+            margin: 1rem 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .bookmarklet:hover {
+            background: #2980b9;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        .instructions {
+            background: #f8f9fa;
+            border-left: 4px solid #3498db;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        .code {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 1rem;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+        .step {
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .step-number {
+            background: #3498db;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚀 LCR Data Extractor Bookmarklet</h1>
+        <p>Automatically extract member data from LCR reports</p>
+    </div>
+
+    <div class="warning">
+        <strong>⚠️ Important:</strong> This bookmarklet only works when you're logged into the LCR website and viewing a member report.
+    </div>
+
+    <div class="step">
+        <h3><span class="step-number">1</span>Create the Bookmarklet</h3>
+        <p>Drag this button to your browser's bookmarks bar:</p>
+        <a href="javascript:(function(){const script=document.createElement('script');script.src='https://your-domain.com/lcr-extractor.js';document.head.appendChild(script);})();" class="bookmarklet">
+            📊 Extract LCR Data
+        </a>
+        <p><small>If the button doesn't work, right-click and "Save as bookmark"</small></p>
+    </div>
+
+    <div class="step">
+        <h3><span class="step-number">2</span>Use the Bookmarklet</h3>
+        <div class="instructions">
+            <ol>
+                <li>Log into <a href="https://lcr.churchofjesuschrist.org" target="_blank">LCR</a></li>
+                <li>Navigate to your custom member report</li>
+                <li>Click the "📊 Extract LCR Data" bookmarklet</li>
+                <li>The data will be automatically copied to your clipboard</li>
+                <li>Go to your FH5 Members app and paste the data</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="step">
+        <h3><span class="step-number">3</span>Alternative: Manual Script</h3>
+        <p>If the bookmarklet doesn't work, you can run this script in the browser console:</p>
+        <div class="code">
+async function getMemberList() {
+    try {
+        // Get the report data from the current page
+        const response = await fetch('https://lcr.churchofjesuschrist.org/api/report/custom-reports/run-report/270dd333-769f-43a0-b73e-d27cc6d5d730?lang=eng');
+        const json = await response.json();
+        
+        const rows = [];
+        const header = [];
+        
+        // Extract headers
+        for(const column of json.columns) {
+            header.push(column.key);
+        }
+        rows.push(header);
+        
+        // Extract member data
+        for(const member of json.members) {
+            const row = [];
+            for(const column of json.columns) {
+                row.push(member[column.key] || '');
+            }
+            rows.push(row);
+        }
+        
+        // Convert to tab-separated format
+        const tabData = rows.map(row => row.join('\t')).join('\n');
+        
+        // Copy to clipboard
+        await navigator.clipboard.writeText(tabData);
+        
+        alert('✅ Data extracted and copied to clipboard!');
+        console.log('Report data:', tabData);
+        
+        return tabData;
+    } catch (error) {
+        console.error('Error extracting data:', error);
+        alert('❌ Error extracting data. Check console for details.');
+    }
+}
+
+// Run the extraction
+getMemberList();
+        </div>
+    </div>
+
+    <div class="instructions">
+        <h3>How It Works</h3>
+        <p>The bookmarklet automatically:</p>
+        <ul>
+            <li>Fetches the member report data from LCR</li>
+            <li>Converts it to the correct format (tab-separated)</li>
+            <li>Copies the data to your clipboard</li>
+            <li>Shows a success message</li>
+        </ul>
+    </div>
+
+    <div class="warning">
+        <strong>🔒 Security Note:</strong> This bookmarklet only works when you're already logged into LCR. It doesn't store or transmit your credentials.
+    </div>
+
+    <script>
+        // Add some interactivity
+        document.addEventListener('DOMContentLoaded', function() {
+            // Make the bookmarklet draggable
+            const bookmarklet = document.querySelector('.bookmarklet');
+            
+            bookmarklet.addEventListener('dragstart', function(e) {
+                e.dataTransfer.setData('text/plain', bookmarklet.href);
+                e.dataTransfer.setData('text/html', bookmarklet.outerHTML);
+            });
+            
+            // Add copy functionality for the manual script
+            const codeBlock = document.querySelector('.code');
+            codeBlock.addEventListener('click', function() {
+                const text = this.textContent;
+                navigator.clipboard.writeText(text).then(() => {
+                    alert('Script copied to clipboard!');
+                });
+            });
+            
+            codeBlock.style.cursor = 'pointer';
+            codeBlock.title = 'Click to copy script';
+        });
+    </script>
+</body>
+</html> 
