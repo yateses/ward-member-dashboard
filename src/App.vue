@@ -103,12 +103,12 @@ body {
   position: sticky;
   top: 0;
   z-index: 100;
+  width: 100%;
 }
 
 .header-content {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 1rem 2rem;
+  width: 100%;
+  padding: 0.75rem 2rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -120,7 +120,7 @@ body {
 }
 
 .logo h1 {
-  font-size: 1.8rem;
+  font-size: 1.5rem;
   color: white;
   font-weight: 600;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
@@ -136,7 +136,7 @@ body {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.75rem 1rem;
+  padding: 0.5rem 0.75rem;
   text-decoration: none;
   color: rgba(255, 255, 255, 0.8);
   border-radius: 8px;
@@ -163,7 +163,7 @@ body {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.75rem 1rem;
+  padding: 0.5rem 0.75rem;
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
   color: rgba(255, 255, 255, 0.8);
