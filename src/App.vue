@@ -1,52 +1,80 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
+import { ref } from 'vue'
+import { authService } from '@/services/authService'
+import AuthGuard from '@/components/AuthGuard.vue'
+
+const loading = ref(false)
+
+const handleLogout = async () => {
+  loading.value = true
+  try {
+    await authService.logout()
+    // The AuthGuard will automatically redirect to login
+  } catch (error) {
+    console.error('Logout failed:', error)
+  } finally {
+    loading.value = false
+  }
+}
 </script>
 
 <template>
-  <div id="app">
-    <header class="app-header">
-      <div class="header-content">
-        <div class="logo">
-          <h1>FH5 Members</h1>
+  <AuthGuard>
+    <div id="app">
+      <header class="app-header">
+        <div class="header-content">
+          <div class="logo">
+            <h1>FH5 Members</h1>
+          </div>
+          
+          <nav class="main-nav">
+            <RouterLink to="/daily" class="nav-link">
+              <span class="nav-icon">📅</span>
+              Daily
+            </RouterLink>
+            <RouterLink to="/maps" class="nav-link">
+              <span class="nav-icon">🗺️</span>
+              Maps
+            </RouterLink>
+            <RouterLink to="/families" class="nav-link">
+              <span class="nav-icon">👨‍👩‍👧‍👦</span>
+              Families
+            </RouterLink>
+            <RouterLink to="/members" class="nav-link">
+              <span class="nav-icon">👥</span>
+              Members
+            </RouterLink>
+            <RouterLink to="/youth" class="nav-link">
+              <span class="nav-icon">👨‍🦱</span>
+              Youth
+            </RouterLink>
+            <RouterLink to="/" class="nav-link">
+              <span class="nav-icon">📊</span>
+              Dashboard
+            </RouterLink>
+            <RouterLink to="/import" class="nav-link">
+              <span class="nav-icon">📥</span>
+              Import
+            </RouterLink>
+            
+            <button 
+              @click="handleLogout" 
+              class="logout-button"
+              :disabled="loading"
+            >
+              <span class="nav-icon">🚪</span>
+              {{ loading ? 'Logging out...' : 'Logout' }}
+            </button>
+          </nav>
         </div>
-        
-        <nav class="main-nav">
-          <RouterLink to="/daily" class="nav-link">
-            <span class="nav-icon">📅</span>
-            Daily
-          </RouterLink>
-          <RouterLink to="/maps" class="nav-link">
-            <span class="nav-icon">🗺️</span>
-            Maps
-          </RouterLink>
-          <RouterLink to="/families" class="nav-link">
-            <span class="nav-icon">👨‍👩‍👧‍👦</span>
-            Families
-          </RouterLink>
-          <RouterLink to="/members" class="nav-link">
-            <span class="nav-icon">👥</span>
-            Members
-          </RouterLink>
-          <RouterLink to="/youth" class="nav-link">
-            <span class="nav-icon">👨‍🦱</span>
-            Youth
-          </RouterLink>
-          <RouterLink to="/" class="nav-link">
-            <span class="nav-icon">📊</span>
-            Dashboard
-          </RouterLink>
-          <RouterLink to="/import" class="nav-link">
-            <span class="nav-icon">📥</span>
-            Import
-          </RouterLink>
-        </nav>
-      </div>
-    </header>
+      </header>
 
-    <main class="app-main">
-      <RouterView />
-    </main>
-  </div>
+      <main class="app-main">
+        <RouterView />
+      </main>
+    </div>
+  </AuthGuard>
 </template>
 
 <style>
@@ -129,6 +157,33 @@ body {
 
 .nav-icon {
   font-size: 1.2rem;
+}
+
+.logout-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.8);
+  border-radius: 8px;
+  transition: all 0.2s;
+  font-weight: 500;
+  cursor: pointer;
+  font-size: inherit;
+  font-family: inherit;
+}
+
+.logout-button:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.logout-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .app-main {
