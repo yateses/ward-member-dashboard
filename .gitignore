@@ -40,5 +40,6 @@ lcr-data.tsv
 debug-*.png
 
 # Generated data files
-*.json
-*.tsv
+lcr-data.json
+lcr-data.tsv
+debug-*.png
