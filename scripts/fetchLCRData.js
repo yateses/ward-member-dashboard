@@ -64,10 +64,10 @@ class LCRAutomation {
     console.log('🔐 Logging into LCR...');
     
     try {
-      // Navigate to LCR
+      // Navigate to LCR with longer timeout
       await this.page.goto('https://lcr.churchofjesuschrist.org', {
         waitUntil: 'networkidle2',
-        timeout: 30000
+        timeout: 60000  // Increased to 60 seconds
       });
 
       console.log('📄 LCR page loaded');
@@ -100,7 +100,7 @@ class LCRAutomation {
           console.log('🔐 Detected OAuth login page (fast path)');
           // Use only the known working selector for username
           usernameField = 'input[name="identifier"]';
-          await this.page.waitForSelector(usernameField, { timeout: 5000 });
+          await this.page.waitForSelector(usernameField, { timeout: 15000 });
           console.log(`✅ Found username field: ${usernameField}`);
           // Step 1: Fill username and submit
           await this.page.type(usernameField, this.username);
@@ -109,7 +109,7 @@ class LCRAutomation {
           console.log('🔐 Username submitted');
           // Wait for password field to appear
           console.log('⏳ Waiting for password field...');
-          await this.page.waitForSelector('input[type="password"]', { timeout: 10000 });
+          await this.page.waitForSelector('input[type="password"]', { timeout: 15000 });
           console.log('✅ Password field found');
           await this.page.type('input[type="password"]', this.password);
           console.log('📝 Password entered');
@@ -119,8 +119,8 @@ class LCRAutomation {
           // Regular login (not expected, but fallback)
           usernameField = '#username';
           passwordField = 'input[type="password"]';
-          await this.page.waitForSelector(usernameField, { timeout: 5000 });
-          await this.page.waitForSelector(passwordField, { timeout: 5000 });
+          await this.page.waitForSelector(usernameField, { timeout: 15000 });
+          await this.page.waitForSelector(passwordField, { timeout: 15000 });
           await this.page.type(usernameField, this.username);
           await this.page.type(passwordField, this.password);
           console.log('📝 Credentials entered');
@@ -132,20 +132,40 @@ class LCRAutomation {
         throw error;
       }
       
-      // Wait for navigation to complete
-      await this.page.waitForNavigation({ 
-        waitUntil: 'networkidle2',
-        timeout: 30000 
-      });
-
-      // Check if login was successful
-      const currentUrl = this.page.url();
-      if (currentUrl.includes('lcr.churchofjesuschrist.org') && !currentUrl.includes('login')) {
-        console.log('✅ Login successful');
-        return true;
-      } else {
-        throw new Error('Login failed - redirected to login page');
-      }
+             // Wait for navigation to complete with more flexible approach
+       console.log('⏳ Waiting for login to complete...');
+       
+       // Wait up to 90 seconds for successful login
+       let attempts = 0;
+       const maxAttempts = 90; // 90 seconds
+       
+       while (attempts < maxAttempts) {
+         await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second
+         attempts++;
+         
+         const currentUrl = this.page.url();
+         console.log(`🔍 Check ${attempts}: Current URL: ${currentUrl}`);
+         
+         // Check if we're successfully logged into LCR
+         if (currentUrl.includes('lcr.churchofjesuschrist.org') && !currentUrl.includes('login') && !currentUrl.includes('id.churchofjesuschrist.org')) {
+           console.log('✅ Login successful - reached LCR main page');
+           return true;
+         }
+         
+         // Check if we're still on login pages
+         if (currentUrl.includes('id.churchofjesuschrist.org')) {
+           console.log('⏳ Still on login page, waiting...');
+           continue;
+         }
+         
+         // Check if we got an error page
+         if (currentUrl.includes('error') || currentUrl.includes('denied')) {
+           throw new Error('Login failed - access denied or error page');
+         }
+       }
+       
+       // If we get here, we timed out
+       throw new Error('Login timeout - page did not redirect to LCR within 90 seconds');
 
     } catch (error) {
       console.error('❌ Login failed:', error.message);
