@@ -1301,7 +1301,48 @@ watch(() => memberStore.members, () => {
   font-size: 0.8rem;
 }
 
-/* Responsive Design */
+/* Mobile and Tablet Responsive Design */
+@media (max-width: 1024px) {
+  .daily-dashboard {
+    padding: 1.5rem;
+  }
+  
+  .header h1 {
+    font-size: 2rem;
+  }
+  
+  .day-selector {
+    gap: 0.75rem;
+  }
+  
+  .day-btn {
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+  }
+  
+  .section {
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .section h2 {
+    font-size: 1.6rem;
+  }
+  
+  .family-card {
+    padding: 1.5rem;
+  }
+  
+  .family-header h3 {
+    font-size: 1.2rem;
+  }
+  
+  .modal {
+    margin: 2rem;
+    padding: 2rem;
+  }
+}
+
 @media (max-width: 768px) {
   .daily-dashboard {
     padding: 1rem;
@@ -1310,24 +1351,86 @@ watch(() => memberStore.members, () => {
   .header {
     flex-direction: column;
     align-items: stretch;
+    gap: 1rem;
+  }
+  
+  .header h1 {
+    font-size: 1.8rem;
+    text-align: center;
   }
   
   .day-selector {
     justify-content: center;
+    gap: 0.5rem;
+  }
+  
+  .day-btn {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
+  }
+  
+  .section {
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .section h2 {
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
   }
   
   .section-header {
     flex-direction: column;
     align-items: stretch;
+    gap: 0.75rem;
+  }
+  
+  .section-controls {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .checkbox-label {
+    font-size: 0.85rem;
+  }
+  
+  .family-card {
+    padding: 1rem;
   }
   
   .family-header {
     flex-direction: column;
-    gap: 1rem;
+    gap: 0.75rem;
+    align-items: flex-start;
+  }
+  
+  .family-header h3 {
+    font-size: 1.1rem;
+  }
+  
+  .family-actions {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .btn {
+    padding: 0.6rem 1rem;
+    font-size: 0.85rem;
+  }
+  
+  .btn-small {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.75rem;
   }
   
   .members-grid {
     grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+  
+  .member-item {
+    padding: 0.5rem;
+    font-size: 0.9rem;
   }
   
   .birthday-details,
@@ -1336,13 +1439,182 @@ watch(() => memberStore.members, () => {
     gap: 0.25rem;
   }
   
+  .birthday-name,
+  .anniversary-names {
+    font-size: 0.9rem;
+  }
+  
+  .birthday-age,
+  .anniversary-years {
+    font-size: 0.8rem;
+  }
+  
+  .todo-section {
+    margin-top: 1rem;
+  }
+  
+  .todo-header {
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: flex-start;
+  }
+  
+  .todo-controls {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .todo-item {
+    padding: 0.75rem;
+  }
+  
+  .todo-content {
+    gap: 0.5rem;
+  }
+  
+  .todo-title {
+    font-size: 0.9rem;
+  }
+  
+  .todo-meta {
+    font-size: 0.8rem;
+  }
+  
   .form-row {
     grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .form-group label {
+    font-size: 0.9rem;
+  }
+  
+  .form-group input,
+  .form-group textarea,
+  .form-group select {
+    font-size: 0.9rem;
+    padding: 0.6rem;
   }
   
   .modal {
     margin: 1rem;
     padding: 1.5rem;
+  }
+  
+  .modal-header h2 {
+    font-size: 1.3rem;
+  }
+  
+  .modal-actions {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .modal-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .daily-dashboard {
+    padding: 0.75rem;
+  }
+  
+  .header h1 {
+    font-size: 1.5rem;
+  }
+  
+  .day-selector {
+    gap: 0.25rem;
+  }
+  
+  .day-btn {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.8rem;
+  }
+  
+  .section {
+    padding: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .section h2 {
+    font-size: 1.3rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .section-controls {
+    gap: 0.4rem;
+  }
+  
+  .checkbox-label {
+    font-size: 0.8rem;
+  }
+  
+  .family-card {
+    padding: 0.75rem;
+  }
+  
+  .family-header h3 {
+    font-size: 1rem;
+  }
+  
+  .btn {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+  }
+  
+  .btn-small {
+    padding: 0.3rem 0.5rem;
+    font-size: 0.7rem;
+  }
+  
+  .member-item {
+    padding: 0.4rem;
+    font-size: 0.85rem;
+  }
+  
+  .birthday-name,
+  .anniversary-names {
+    font-size: 0.85rem;
+  }
+  
+  .birthday-age,
+  .anniversary-years {
+    font-size: 0.75rem;
+  }
+  
+  .todo-item {
+    padding: 0.6rem;
+  }
+  
+  .todo-title {
+    font-size: 0.85rem;
+  }
+  
+  .todo-meta {
+    font-size: 0.75rem;
+  }
+  
+  .form-group label {
+    font-size: 0.85rem;
+  }
+  
+  .form-group input,
+  .form-group textarea,
+  .form-group select {
+    font-size: 0.85rem;
+    padding: 0.5rem;
+  }
+  
+  .modal {
+    margin: 0.5rem;
+    padding: 1rem;
+  }
+  
+  .modal-header h2 {
+    font-size: 1.2rem;
   }
 }
 </style> 

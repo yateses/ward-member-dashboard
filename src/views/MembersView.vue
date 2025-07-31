@@ -625,6 +625,30 @@ onMounted(async () => {
   background: #7f8c8d;
 }
 
+/* Mobile and Tablet Responsive Design */
+@media (max-width: 1024px) {
+  .members-view {
+    padding: 1.5rem;
+  }
+  
+  .page-header h1 {
+    font-size: 2rem;
+  }
+  
+  .members-grid {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+  }
+  
+  .member-card {
+    padding: 1.5rem;
+  }
+  
+  .modal-overlay {
+    padding: 2rem;
+  }
+}
+
 @media (max-width: 768px) {
   .members-view {
     padding: 1rem;
@@ -633,18 +657,81 @@ onMounted(async () => {
   .page-header {
     flex-direction: column;
     align-items: stretch;
+    gap: 1rem;
+  }
+  
+  .page-header h1 {
+    font-size: 1.8rem;
+    text-align: center;
   }
   
   .header-actions {
     flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .search-box {
+    width: 100%;
   }
   
   .search-input {
     min-width: auto;
+    flex: 1;
   }
   
   .members-grid {
     grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .member-card {
+    padding: 1rem;
+  }
+  
+  .member-header {
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: flex-start;
+  }
+  
+  .member-header h3 {
+    font-size: 1.1rem;
+  }
+  
+  .member-actions {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .btn {
+    padding: 0.6rem 1rem;
+    font-size: 0.85rem;
+  }
+  
+  .btn-small {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.75rem;
+  }
+  
+  .member-details {
+    gap: 0.5rem;
+  }
+  
+  .detail-item {
+    font-size: 0.9rem;
+  }
+  
+  .detail-item label {
+    font-size: 0.8rem;
+  }
+  
+  .callings-list {
+    gap: 0.4rem;
+  }
+  
+  .calling-item {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.4rem;
   }
   
   .members-stats {
@@ -652,8 +739,126 @@ onMounted(async () => {
     gap: 1rem;
   }
   
+  .stat-card {
+    padding: 1rem;
+  }
+  
+  .stat-card h3 {
+    font-size: 1.5rem;
+  }
+  
+  .stat-card p {
+    font-size: 0.9rem;
+  }
+  
   .modal-overlay {
     padding: 1rem;
+  }
+  
+  .modal-content {
+    max-width: 95%;
+    max-height: 90vh;
+  }
+  
+  .modal-header h2 {
+    font-size: 1.3rem;
+  }
+  
+  .modal-body {
+    padding: 1rem;
+  }
+  
+  .modal-footer {
+    padding: 1rem;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .modal-footer .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .members-view {
+    padding: 0.75rem;
+  }
+  
+  .page-header h1 {
+    font-size: 1.5rem;
+  }
+  
+  .header-actions {
+    gap: 0.75rem;
+  }
+  
+  .member-card {
+    padding: 0.75rem;
+  }
+  
+  .member-header h3 {
+    font-size: 1rem;
+  }
+  
+  .btn {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+  }
+  
+  .btn-small {
+    padding: 0.3rem 0.5rem;
+    font-size: 0.7rem;
+  }
+  
+  .member-details {
+    gap: 0.4rem;
+  }
+  
+  .detail-item {
+    font-size: 0.85rem;
+  }
+  
+  .detail-item label {
+    font-size: 0.75rem;
+  }
+  
+  .calling-item {
+    font-size: 0.7rem;
+    padding: 0.15rem 0.3rem;
+  }
+  
+  .stat-card {
+    padding: 0.75rem;
+  }
+  
+  .stat-card h3 {
+    font-size: 1.3rem;
+  }
+  
+  .stat-card p {
+    font-size: 0.8rem;
+  }
+  
+  .modal-overlay {
+    padding: 0.5rem;
+  }
+  
+  .modal-content {
+    max-width: 98%;
+    max-height: 95vh;
+  }
+  
+  .modal-header h2 {
+    font-size: 1.2rem;
+  }
+  
+  .modal-body {
+    padding: 0.75rem;
+  }
+  
+  .modal-footer {
+    padding: 0.75rem;
   }
 }
 </style> 

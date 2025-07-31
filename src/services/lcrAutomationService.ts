@@ -164,11 +164,106 @@ export class LCRAutomationService {
   }
 
   /**
+   * Check if the API server is running
+   */
+  private static async isServerRunning(): Promise<boolean> {
+    try {
+      const response = await fetch('http://localhost:3001/api/health', {
+        method: 'GET',
+        signal: AbortSignal.timeout(2000) // 2 second timeout
+      })
+      return response.ok
+    } catch (error) {
+      return false
+    }
+  }
+
+  /**
+   * Start the API server if it's not running
+   */
+  private static async startServerIfNeeded(): Promise<boolean> {
+    try {
+      // First check if server is already running
+      if (await this.isServerRunning()) {
+        console.log('✅ API server is already running')
+        return true
+      }
+
+      console.log('🔄 API server not running, attempting to start it...')
+      
+      // Since we can't directly start a Node.js process from the browser,
+      // we'll just check if the server responds to the start endpoint
+      // This is mainly for future extensibility
+      try {
+        const response = await fetch('http://localhost:3001/api/start', {
+          method: 'POST',
+          signal: AbortSignal.timeout(2000) // 2 second timeout
+        })
+        
+        if (response.ok) {
+          console.log('✅ API server is running')
+          return true
+        }
+      } catch (error) {
+        // Server is not running, which is expected
+        console.log('⚠️ API server is not running')
+      }
+      
+      return false
+    } catch (error) {
+      console.log('⚠️ Error checking server status:', error)
+      return false
+    }
+  }
+
+  /**
+   * Wait for the server to be ready
+   */
+  private static async waitForServer(maxAttempts: number = 10): Promise<boolean> {
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      console.log(`🔄 Checking server status (attempt ${attempt}/${maxAttempts})...`)
+      
+      if (await this.isServerRunning()) {
+        console.log('✅ Server is ready!')
+        return true
+      }
+      
+      // Wait 1 second before next attempt
+      await new Promise(resolve => setTimeout(resolve, 1000))
+    }
+    
+    console.log('❌ Server did not become ready in time')
+    return false
+  }
+
+  /**
    * One-click automation: Run the script and return the data directly
    */
   static async runOneClickAutomation(): Promise<OneClickResult> {
     try {
       console.log('🚀 Starting one-click LCR automation...')
+      
+      // Check if we're on localhost
+      const isLocalhost = window.location.hostname === 'localhost' || 
+                         window.location.hostname === '127.0.0.1' ||
+                         window.location.hostname.includes('localhost')
+      
+      if (isLocalhost) {
+        // Try to start the server if needed
+        const serverStarted = await this.startServerIfNeeded()
+        
+        if (!serverStarted) {
+          // Wait for server to be ready
+          const serverReady = await this.waitForServer()
+          
+          if (!serverReady) {
+            return {
+              success: false,
+              message: 'Could not start API server. Please run "npm run api-server" manually in a separate terminal.'
+            }
+          }
+        }
+      }
       
       // Call the API server to run the automation
       const response = await fetch('http://localhost:3001/api/run-lcr-automation', {
@@ -203,9 +298,24 @@ export class LCRAutomationService {
       
     } catch (error) {
       console.error('❌ One-click automation failed:', error)
+      
+      // Provide more helpful error messages
+      if (error instanceof Error) {
+        if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+          return {
+            success: false,
+            message: 'Could not connect to API server. Please ensure "npm run api-server" is running in a separate terminal.'
+          }
+        }
+        return {
+          success: false,
+          message: error.message
+        }
+      }
+      
       return {
         success: false,
-        message: error instanceof Error ? error.message : 'Unknown error occurred'
+        message: 'Unknown error occurred'
       }
     }
   }

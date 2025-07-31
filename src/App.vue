@@ -191,23 +191,92 @@ body {
   padding: 0;
 }
 
+/* Mobile and Tablet Responsive Design */
+@media (max-width: 1024px) {
+  .header-content {
+    padding: 0.75rem 1rem;
+  }
+  
+  .logo h1 {
+    font-size: 1.3rem;
+  }
+  
+  .nav-link {
+    font-size: 0.85rem;
+    padding: 0.4rem 0.6rem;
+  }
+  
+  .nav-icon {
+    font-size: 1rem;
+  }
+  
+  .logout-button {
+    font-size: 0.85rem;
+    padding: 0.4rem 0.6rem;
+  }
+}
+
 @media (max-width: 768px) {
   .header-content {
     flex-direction: column;
-    gap: 1rem;
-    padding: 1rem;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
   }
   
-
+  .logo h1 {
+    font-size: 1.2rem;
+    margin-bottom: 0.25rem;
+  }
   
   .main-nav {
     flex-wrap: wrap;
     justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
   }
   
   .nav-link {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.5rem;
+    min-width: auto;
+    flex: 0 0 auto;
+  }
+  
+  .nav-icon {
     font-size: 0.9rem;
+  }
+  
+  .logout-button {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-content {
     padding: 0.5rem 0.75rem;
+  }
+  
+  .logo h1 {
+    font-size: 1.1rem;
+  }
+  
+  .main-nav {
+    gap: 0.25rem;
+  }
+  
+  .nav-link {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.4rem;
+  }
+  
+  .nav-icon {
+    font-size: 0.8rem;
+  }
+  
+  .logout-button {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.4rem;
   }
 }
 </style>

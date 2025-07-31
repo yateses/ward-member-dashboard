@@ -963,7 +963,35 @@ onMounted(() => {
   font-size: 0.8rem;
 }
 
-/* Responsive Design */
+/* Mobile and Tablet Responsive Design */
+@media (max-width: 1024px) {
+  .families-view {
+    padding: 1.5rem;
+  }
+  
+  .header h1 {
+    font-size: 1.8rem;
+  }
+  
+  .families-grid {
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1rem;
+  }
+  
+  .family-card {
+    padding: 1.5rem;
+  }
+  
+  .family-header h3 {
+    font-size: 1.2rem;
+  }
+  
+  .modal {
+    margin: 2rem;
+    padding: 2rem;
+  }
+}
+
 @media (max-width: 768px) {
   .families-view {
     padding: 1rem;
@@ -972,28 +1000,209 @@ onMounted(() => {
   .header {
     flex-direction: column;
     align-items: stretch;
+    gap: 1rem;
+  }
+  
+  .header h1 {
+    font-size: 1.6rem;
+    text-align: center;
   }
   
   .header-actions {
     justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  
+  .view-controls {
+    flex-wrap: wrap;
+    gap: 0.75rem;
   }
   
   .families-grid {
     grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .family-card {
+    padding: 1rem;
   }
   
   .family-header {
     flex-direction: column;
-    gap: 1rem;
+    gap: 0.75rem;
+    align-items: flex-start;
+  }
+  
+  .family-header h3 {
+    font-size: 1.1rem;
+  }
+  
+  .family-actions {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .btn {
+    padding: 0.6rem 1rem;
+    font-size: 0.85rem;
+  }
+  
+  .btn-small {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.75rem;
+  }
+  
+  .members-list {
+    gap: 0.5rem;
+  }
+  
+  .member-item {
+    padding: 0.5rem;
+    font-size: 0.9rem;
+  }
+  
+  .todo-section {
+    margin-top: 1rem;
+  }
+  
+  .todo-header {
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: flex-start;
+  }
+  
+  .todo-controls {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .todo-item {
+    padding: 0.75rem;
+  }
+  
+  .todo-content {
+    gap: 0.5rem;
+  }
+  
+  .todo-title {
+    font-size: 0.9rem;
+  }
+  
+  .todo-meta {
+    font-size: 0.8rem;
   }
   
   .form-row {
     grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .form-group label {
+    font-size: 0.9rem;
+  }
+  
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    font-size: 0.9rem;
+    padding: 0.6rem;
   }
   
   .modal {
     margin: 1rem;
     padding: 1.5rem;
+  }
+  
+  .modal-header h2 {
+    font-size: 1.3rem;
+  }
+  
+  .modal-actions {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .modal-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .families-view {
+    padding: 0.75rem;
+  }
+  
+  .header h1 {
+    font-size: 1.4rem;
+  }
+  
+  .header-actions {
+    gap: 0.5rem;
+  }
+  
+  .view-controls {
+    gap: 0.5rem;
+  }
+  
+  .checkbox-label {
+    font-size: 0.8rem;
+  }
+  
+  .family-card {
+    padding: 0.75rem;
+  }
+  
+  .family-header h3 {
+    font-size: 1rem;
+  }
+  
+  .btn {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+  }
+  
+  .btn-small {
+    padding: 0.3rem 0.5rem;
+    font-size: 0.7rem;
+  }
+  
+  .member-item {
+    padding: 0.4rem;
+    font-size: 0.85rem;
+  }
+  
+  .todo-item {
+    padding: 0.6rem;
+  }
+  
+  .todo-title {
+    font-size: 0.85rem;
+  }
+  
+  .todo-meta {
+    font-size: 0.75rem;
+  }
+  
+  .form-group label {
+    font-size: 0.85rem;
+  }
+  
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    font-size: 0.85rem;
+    padding: 0.5rem;
+  }
+  
+  .modal {
+    margin: 0.5rem;
+    padding: 1rem;
+  }
+  
+  .modal-header h2 {
+    font-size: 1.2rem;
   }
 }
 </style> 

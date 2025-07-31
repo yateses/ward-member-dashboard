@@ -27,7 +27,6 @@
           @mouseleave="clearHoverTimer"
         >
          <div class="pin-marker">
-           <span class="pin-number">{{ getPinNumber(plot) }}</span>
          </div>
          <!-- Delete button (admin mode only) -->
          <button 
@@ -194,10 +193,6 @@ const forceUpdate = ref(0);
 
 
 // Computed
-const getPinNumber = (plot: PlotWithFamily) => {
-  const index = plotsWithFamilies.value.findIndex(p => p.id === plot.id);
-  return index + 1;
-};
 
 // Methods
 const loadData = async () => {
@@ -578,14 +573,11 @@ watch(plots, () => {
 }
 
 .pin-marker {
-  width: 24px;
-  height: 24px;
+  width: 16px;
+  height: 16px;
   background: #dc3545;
   border: 2px solid white;
   border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
@@ -600,24 +592,20 @@ watch(plots, () => {
   box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
 }
 
-.pin-number {
-  color: white;
-  font-size: 12px;
-  font-weight: bold;
-}
+
 
 .delete-pin-btn {
   position: absolute;
-  top: -8px;
-  right: -8px;
-  width: 20px;
-  height: 20px;
+  top: -6px;
+  right: -6px;
+  width: 16px;
+  height: 16px;
   background: #dc3545;
   color: white;
   border: 2px solid white;
   border-radius: 50%;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 10px;
   font-weight: bold;
   display: flex;
   align-items: center;
@@ -634,6 +622,31 @@ watch(plots, () => {
 .delete-pin-btn:hover {
   background: #c82333;
   transform: scale(1.1);
+}
+
+/* Mobile optimization for pins */
+@media (max-width: 768px) {
+  .pin-marker {
+    width: 12px;
+    height: 12px;
+    border-width: 1px;
+  }
+  
+  .delete-pin-btn {
+    width: 12px;
+    height: 12px;
+    font-size: 8px;
+    top: -4px;
+    right: -4px;
+  }
+  
+  .plot-pin:hover {
+    transform: translate(-50%, -50%) scale(1.05);
+  }
+  
+  .plot-pin.selected .pin-marker {
+    transform: scale(1.05);
+  }
 }
 
 .hover-tooltip {

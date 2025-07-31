@@ -397,13 +397,71 @@ onMounted(async () => {
   white-space: nowrap;
 }
 
+/* Mobile and Tablet Responsive Design */
+@media (max-width: 1024px) {
+  .youth-view {
+    padding: 1.5rem;
+  }
+  
+  .youth-header h1 {
+    font-size: 2rem;
+  }
+  
+  .youth-stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+  
+  .stat-card {
+    padding: 1.25rem;
+  }
+  
+  .youth-sections {
+    gap: 1.5rem;
+  }
+  
+  .youth-section {
+    padding: 1.5rem;
+  }
+  
+  .youth-section h2 {
+    font-size: 1.6rem;
+  }
+}
+
 @media (max-width: 768px) {
   .youth-view {
     padding: 1rem;
   }
   
+  .youth-header {
+    margin-bottom: 2rem;
+  }
+  
+  .youth-header h1 {
+    font-size: 1.8rem;
+  }
+  
+  .subtitle {
+    font-size: 1rem;
+  }
+  
   .youth-stats {
     grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  
+  .stat-card {
+    padding: 1rem;
+  }
+  
+  .stat-content h3 {
+    font-size: 1.5rem;
+  }
+  
+  .stat-content p {
+    font-size: 0.85rem;
   }
   
   .youth-sections {
@@ -413,6 +471,119 @@ onMounted(async () => {
   
   .youth-section {
     padding: 1rem;
+  }
+  
+  .youth-section h2 {
+    font-size: 1.4rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .age-groups {
+    gap: 1.25rem;
+  }
+  
+  .age-group h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.6rem;
+  }
+  
+  .members-list {
+    gap: 0.4rem;
+  }
+  
+  .member-item {
+    padding: 0.6rem;
+    gap: 0.75rem;
+  }
+  
+  .member-name {
+    font-size: 0.9rem;
+  }
+  
+  .member-age {
+    font-size: 0.85rem;
+  }
+  
+  .member-birthday {
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .youth-view {
+    padding: 0.75rem;
+  }
+  
+  .youth-header {
+    margin-bottom: 1.5rem;
+  }
+  
+  .youth-header h1 {
+    font-size: 1.5rem;
+  }
+  
+  .subtitle {
+    font-size: 0.9rem;
+  }
+  
+  .youth-stats {
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .stat-card {
+    padding: 0.75rem;
+  }
+  
+  .stat-content h3 {
+    font-size: 1.3rem;
+  }
+  
+  .stat-content p {
+    font-size: 0.8rem;
+  }
+  
+  .youth-sections {
+    gap: 1rem;
+  }
+  
+  .youth-section {
+    padding: 0.75rem;
+  }
+  
+  .youth-section h2 {
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+  }
+  
+  .age-groups {
+    gap: 1rem;
+  }
+  
+  .age-group h3 {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .members-list {
+    gap: 0.3rem;
+  }
+  
+  .member-item {
+    padding: 0.5rem;
+    gap: 0.5rem;
+  }
+  
+  .member-name {
+    font-size: 0.85rem;
+  }
+  
+  .member-age {
+    font-size: 0.8rem;
+  }
+  
+  .member-birthday {
+    font-size: 0.7rem;
   }
 }
 </style> 

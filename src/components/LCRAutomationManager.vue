@@ -12,6 +12,27 @@
           </span>
         </div>
         
+        <div class="status-item">
+          <span class="status-label">API Server:</span>
+          <span class="status-value" :class="{ 
+            'available': serverStatus === 'running',
+            'checking': serverStatus === 'checking'
+          }">
+            <span v-if="serverStatus === 'checking'">🔄 Checking...</span>
+            <span v-else-if="serverStatus === 'running'">🟢 Running</span>
+            <span v-else-if="serverStatus === 'stopped'">🔴 Stopped</span>
+            <span v-else>⚪ Unknown</span>
+          </span>
+          <button 
+            @click="checkServerStatus" 
+            :disabled="isCheckingServer"
+            class="check-server-btn"
+            title="Check server status"
+          >
+            🔄
+          </button>
+        </div>
+        
         <div v-if="lastRun" class="status-item">
           <span class="status-label">Last Run:</span>
           <span class="status-value">{{ formatDate(lastRun) }}</span>
@@ -143,6 +164,8 @@ const importedCount = ref(0)
 const showInstructions = ref(false)
 const isRunningAutomation = ref(false)
 const automationStatus = ref<string | null>(null)
+const serverStatus = ref<'checking' | 'running' | 'stopped' | 'unknown'>('unknown')
+const isCheckingServer = ref(false)
 
 // Computed properties
 const canImport = computed(() => {
@@ -158,6 +181,31 @@ const checkAvailability = async () => {
   } catch (err) {
     console.error('Failed to check automation status:', err)
     isAvailable.value = false
+  }
+}
+
+const checkServerStatus = async () => {
+  try {
+    isCheckingServer.value = true
+    serverStatus.value = 'checking'
+    
+    const response = await fetch('http://localhost:3001/api/health', {
+      method: 'GET',
+      signal: AbortSignal.timeout(3000) // 3 second timeout
+    })
+    
+    if (response.ok) {
+      serverStatus.value = 'running'
+      console.log('✅ API server is running')
+    } else {
+      serverStatus.value = 'stopped'
+      console.log('❌ API server is not responding')
+    }
+  } catch (error) {
+    serverStatus.value = 'stopped'
+    console.log('❌ API server is not running:', error)
+  } finally {
+    isCheckingServer.value = false
   }
 }
 
@@ -239,6 +287,17 @@ const runOneClickAutomation = async () => {
 
     console.log('🚀 Starting one-click LCR automation...')
     
+    // First check if server is running
+    automationStatus.value = '🔍 Checking server status...'
+    await checkServerStatus()
+    
+    if (serverStatus.value !== 'running') {
+      automationStatus.value = null
+      error.value = 'API server is not running. Please start it first:\n\n1. Open a new terminal\n2. Navigate to your project directory\n3. Run: npm run api-server\n4. Keep that terminal open and try again'
+      return
+    }
+    
+    automationStatus.value = '🚀 Running LCR automation...'
     const result = await LCRAutomationService.runOneClickAutomation()
     
     if (result.success && result.data) {
@@ -251,7 +310,13 @@ const runOneClickAutomation = async () => {
       
       console.log(`✅ One-click automation completed: ${result.memberCount} members`)
     } else {
-      error.value = result.message || 'Automation failed'
+      // Check if it's a server connection error and provide helpful instructions
+      if (result.message.includes('Could not connect to API server') || 
+          result.message.includes('Could not start API server')) {
+        error.value = `${result.message}\n\n💡 To fix this:\n1. Open a new terminal\n2. Navigate to your project directory\n3. Run: npm run api-server\n4. Keep that terminal open and try again`
+      } else {
+        error.value = result.message || 'Automation failed'
+      }
       automationStatus.value = null
       console.error('❌ One-click automation failed:', result.message)
     }
@@ -291,6 +356,7 @@ const formatDate = (date: Date): string => {
 // Initialize on mount
 onMounted(() => {
   checkAvailability()
+  checkServerStatus() // Check server status on mount
 })
 </script>
 
@@ -343,6 +409,30 @@ onMounted(() => {
 
 .status-value.available {
   color: #27ae60;
+}
+
+.status-value.checking {
+  color: #f39c12;
+}
+
+.check-server-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0.25rem;
+  margin-left: 0.5rem;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.check-server-btn:hover:not(:disabled) {
+  background: #e9ecef;
+}
+
+.check-server-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .instructions {

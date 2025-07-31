@@ -582,21 +582,194 @@ onMounted(async () => {
   margin: 2rem 0;
 }
 
+/* Mobile and Tablet Responsive Design */
+@media (max-width: 1024px) {
+  .dashboard {
+    padding: 1.5rem;
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+  
+  .stat-card {
+    padding: 1rem;
+  }
+  
+  .stat-content h3 {
+    font-size: 1.5rem;
+  }
+  
+  .chart-section, .actions-section, .recent-section, .tracker-section, .recommend-section {
+    padding: 1.5rem;
+  }
+  
+  .action-buttons {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .recent-members, .expiring-members {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  }
+}
+
 @media (max-width: 768px) {
   .dashboard {
     padding: 1rem;
   }
   
+  .dashboard-header h1 {
+    font-size: 1.8rem;
+  }
+  
+  .dashboard-header .subtitle {
+    font-size: 1rem;
+  }
+  
   .stats-grid {
     grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  
+  .stat-card {
+    padding: 0.75rem;
+  }
+  
+  .stat-content h3 {
+    font-size: 1.3rem;
+  }
+  
+  .stat-content p {
+    font-size: 0.8rem;
+  }
+  
+  .chart-section, .actions-section, .recent-section, .tracker-section, .recommend-section {
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .chart-section h2, .actions-section h2, .recent-section h2, .tracker-section h2, .recommend-section h2 {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
   }
   
   .action-buttons {
     grid-template-columns: 1fr;
+    gap: 0.75rem;
   }
   
-  .recent-members {
+  .action-btn {
+    padding: 1rem;
+  }
+  
+  .btn-icon {
+    font-size: 1.5rem;
+  }
+  
+  .recent-members, .expiring-members {
     grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  
+  .member-card {
+    padding: 0.75rem;
+  }
+  
+  .member-avatar {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+  
+  .age-bar {
+    gap: 0.5rem;
+  }
+  
+  .age-label {
+    min-width: 80px;
+    font-size: 0.9rem;
+  }
+  
+  .age-count {
+    min-width: 30px;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard {
+    padding: 0.75rem;
+  }
+  
+  .dashboard-header h1 {
+    font-size: 1.5rem;
+  }
+  
+  .dashboard-header .subtitle {
+    font-size: 0.9rem;
+  }
+  
+  .stats-grid {
+    gap: 0.5rem;
+  }
+  
+  .stat-card {
+    padding: 0.5rem;
+  }
+  
+  .stat-content h3 {
+    font-size: 1.1rem;
+  }
+  
+  .stat-content p {
+    font-size: 0.75rem;
+  }
+  
+  .chart-section, .actions-section, .recent-section, .tracker-section, .recommend-section {
+    padding: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .chart-section h2, .actions-section h2, .recent-section h2, .tracker-section h2, .recommend-section h2 {
+    font-size: 1.1rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .action-btn {
+    padding: 0.75rem;
+  }
+  
+  .btn-icon {
+    font-size: 1.2rem;
+  }
+  
+  .member-card {
+    padding: 0.5rem;
+  }
+  
+  .member-avatar {
+    width: 35px;
+    height: 35px;
+    font-size: 0.9rem;
+  }
+  
+  .member-info h4 {
+    font-size: 0.9rem;
+  }
+  
+  .member-info p {
+    font-size: 0.8rem;
+  }
+  
+  .age-label {
+    min-width: 60px;
+    font-size: 0.8rem;
+  }
+  
+  .age-count {
+    min-width: 25px;
+    font-size: 0.8rem;
   }
 }
 </style> 

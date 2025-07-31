@@ -115,7 +115,21 @@ function runAutomationScript() {
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  res.json({ 
+    status: 'ok', 
+    timestamp: new Date().toISOString(),
+    server: 'LCR Automation API',
+    version: '1.0.0'
+  });
+});
+
+// Startup endpoint (for checking if server can be started)
+app.post('/api/start', (req, res) => {
+  res.json({ 
+    status: 'running', 
+    message: 'API server is already running',
+    timestamp: new Date().toISOString()
+  });
 });
 
 // Start server
