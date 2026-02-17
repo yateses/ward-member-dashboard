@@ -25,7 +25,7 @@ LCR_USERNAME=your_lcr_username
 LCR_PASSWORD=your_lcr_password
 
 # Optional: Custom LCR report ID (default is the member report)
-LCR_REPORT_ID=270dd333-769f-43a0-b73e-d27cc6d5d730
+LCR_REPORT_ID=33D30D27-9F76-A043-B73E-D27CC6D5D730
 
 # Optional: Output file path for the fetched data
 LCR_OUTPUT_FILE=./lcr-data.json
@@ -100,7 +100,7 @@ Data is processed and stored in database
 |----------|-------------|---------|
 | `LCR_USERNAME` | Your LCR username | Required |
 | `LCR_PASSWORD` | Your LCR password | Required |
-| `LCR_REPORT_ID` | Custom report ID to fetch | `270dd333-769f-43a0-b73e-d27cc6d5d730` |
+| `LCR_REPORT_ID` | Custom report ID to fetch | `33D30D27-9F76-A043-B73E-D27CC6D5D730` |
 | `LCR_OUTPUT_FILE` | Output file path | `./lcr-data.json` |
 
 ### Script Options

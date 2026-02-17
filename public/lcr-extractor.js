@@ -96,7 +96,7 @@
             if (!reportData) {
                 // Look for report ID in URL or page content
                 const urlMatch = window.location.href.match(/report\/([a-f0-9-]+)/);
-                const reportId = urlMatch ? urlMatch[1] : '270dd333-769f-43a0-b73e-d27cc6d5d730'; // Default fallback
+                const reportId = urlMatch ? urlMatch[1] : '33D30D27-9F76-A043-B73E-D27CC6D5D730'; // Default fallback
                 
                 const response = await fetch(`https://lcr.churchofjesuschrist.org/api/report/custom-reports/run-report/${reportId}?lang=eng`);
                 if (response.ok) {

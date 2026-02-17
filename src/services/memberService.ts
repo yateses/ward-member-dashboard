@@ -23,6 +23,11 @@ export class MemberService {
   static convertImportDataToMember(data: MemberImportData): Omit<Member, 'id' | 'createdAt' | 'updatedAt'> {
     const now = new Date()
     
+    // Normalize LCR cell values that include column name prefix (e.g. "Age19" -> "19", "GenderM" -> "M")
+    const ageRaw = (data.AGE ?? '').trim().replace(/^Age\s*/i, '').trim()
+    const genderRaw = (data.GENDER ?? '').trim().replace(/^Gender\s*/i, '').trim()
+    const genderVal = (genderRaw[0] ?? '').toUpperCase()
+    
     // Parse callings from HTML format
     const callings = data.CALLINGS 
       ? data.CALLINGS
@@ -35,8 +40,8 @@ export class MemberService {
 
     // Handle age more gracefully - only parse if it's a valid number
     let age = 0
-    if (data.AGE && data.AGE.trim()) {
-      const parsedAge = parseInt(data.AGE)
+    if (ageRaw) {
+      const parsedAge = parseInt(ageRaw)
       if (!isNaN(parsedAge) && parsedAge >= 0 && parsedAge <= 120) {
         age = parsedAge
       }
@@ -44,8 +49,8 @@ export class MemberService {
 
     // Handle gender more gracefully - only use if it's valid
     let gender: 'M' | 'F' = 'M' // default
-    if (data.GENDER && ['M', 'F'].includes(data.GENDER)) {
-      gender = data.GENDER as 'M' | 'F'
+    if (genderVal === 'M' || genderVal === 'F') {
+      gender = genderVal
     }
 
     // Handle birth day/year more gracefully
@@ -65,10 +70,13 @@ export class MemberService {
       }
     }
 
+    // Use PREFERRED_NAME as head of house when HEAD_OF_HOUSE is empty (e.g. single-member or LCR gap)
+    const headOfHouse = (data.HEAD_OF_HOUSE && data.HEAD_OF_HOUSE.trim()) ? data.HEAD_OF_HOUSE : (data.PREFERRED_NAME || '').trim() || 'Unknown'
+
     // Create the member object
     const member = {
       preferredName: data.PREFERRED_NAME || '',
-      headOfHouse: data.HEAD_OF_HOUSE || '',
+      headOfHouse,
       addressStreet1: data.ADDRESS_STREET_1 || '',
       age,
       baptismDate: data.BAPTISM_DATE || null,

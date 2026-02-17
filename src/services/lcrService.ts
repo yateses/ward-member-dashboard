@@ -2,7 +2,7 @@ import type { MemberImportData } from '../types/member'
 
 export class LCRService {
   // Fetch member data from LCR using popup
-  static async fetchMemberData(reportId: string = '270dd333-769f-43a0-b73e-d27cc6d5d730'): Promise<MemberImportData[]> {
+  static async fetchMemberData(reportId: string = '33D30D27-9F76-A043-B73E-D27CC6D5D730'): Promise<MemberImportData[]> {
     return new Promise((resolve, reject) => {
       // Check if we have a popup window open
       const popup = window.open('', 'LCR_Login')
@@ -105,7 +105,7 @@ export class LCRService {
       // This is a placeholder - LCR might not expose this endpoint
       // You can customize this based on your specific report IDs
       return [
-        { id: '270dd333-769f-43a0-b73e-d27cc6d5d730', name: 'Member Report' }
+        { id: '33D30D27-9F76-A043-B73E-D27CC6D5D730', name: 'Member Report' }
       ]
     } catch (error) {
       console.error('Error getting reports:', error)

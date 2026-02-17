@@ -12,13 +12,171 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+/** Map LCR column display names to MemberImportData keys (required for app import). */
+const LCR_LABEL_TO_IMPORT_KEY = {
+  'preferred name': 'PREFERRED_NAME',
+  'preferredname': 'PREFERRED_NAME',
+  'name': 'PREFERRED_NAME',
+  'member name': 'PREFERRED_NAME',
+  'head of house': 'HEAD_OF_HOUSE',
+  'headofhouse': 'HEAD_OF_HOUSE',
+  'head of household': 'HEAD_OF_HOUSE',
+  'address street 1': 'ADDRESS_STREET_1',
+  'address - street 1': 'ADDRESS_STREET_1',
+  'address': 'ADDRESS_STREET_1',
+  'street address': 'ADDRESS_STREET_1',
+  'age': 'AGE',
+  'gender': 'GENDER',
+  'birth date': 'BIRTH_DATE',
+  'birth date (1 jan 1990)': 'BIRTH_DATE',
+  'birthdate': 'BIRTH_DATE',
+  'birth day': 'BIRTH_DAY',
+  'birth day (1)': 'BIRTH_DAY',
+  'birthday': 'BIRTH_DAY',
+  'birth month': 'BIRTH_MONTH',
+  'birth month (jan)': 'BIRTH_MONTH',
+  'birthmonth': 'BIRTH_MONTH',
+  'birth year': 'BIRTH_YEAR',
+  'birthyear': 'BIRTH_YEAR',
+  'baptism date': 'BAPTISM_DATE',
+  'baptismdate': 'BAPTISM_DATE',
+  'callings': 'CALLINGS',
+  'birthplace': 'BIRTHPLACE',
+  'birth place': 'BIRTHPLACE',
+  'individual phone': 'INDIVIDUAL_PHONE',
+  'phone': 'INDIVIDUAL_PHONE',
+  'individual email': 'INDIVIDUAL_EMAIL',
+  'individual e-mail': 'INDIVIDUAL_EMAIL',
+  'email': 'INDIVIDUAL_EMAIL',
+  'marriage date': 'MARRIAGE_DATE',
+  'marriagedate': 'MARRIAGE_DATE',
+  'priesthood office': 'PRIESTHOOD_OFFICE',
+  'priesthood': 'PRIESTHOOD_OFFICE',
+  'temple recommend expiration date': 'TEMPLE_RECOMMEND_EXPIRATION_DATE',
+  'temple recommend': 'TEMPLE_RECOMMEND_EXPIRATION_DATE',
+  'recommend expiration': 'TEMPLE_RECOMMEND_EXPIRATION_DATE'
+};
+
+/** Normalize doubled LCR header text (e.g. "Preferred NamePreferred Name" -> "Preferred Name"). */
+function undoubleHeaderText(text) {
+  if (!text || typeof text !== 'string') return text;
+  const t = text.trim();
+  const half = Math.floor(t.length / 2);
+  if (half > 0 && t.slice(0, half) === t.slice(half)) return t.slice(0, half).trim();
+  return t;
+}
+
+function normalizeTableDataForImport(columns, members) {
+  if (!Array.isArray(members) || members.length === 0) return { columns, members };
+  const normalizedCols = [];
+  const keyMap = {}; // old key -> canonical key
+  columns.forEach((col, i) => {
+    const rawKey = (col && (col.key || col.label)) || `col${i}`;
+    const single = undoubleHeaderText(rawKey);
+    const label = (single || rawKey).trim().toLowerCase();
+    const canonical = LCR_LABEL_TO_IMPORT_KEY[label] || single.replace(/\s+/g, '_').replace(/[()]/g, '').toUpperCase() || rawKey.replace(/\s+/g, '_').toUpperCase();
+    keyMap[rawKey] = canonical;
+    normalizedCols.push({ key: canonical, label: undoubleHeaderText(col?.label || rawKey) });
+  });
+  /** Strip LCR column header from start of cell value (headers are often concatenated with data in the DOM). */
+  function stripHeaderFromValue(value, headerKey) {
+    if (value == null || typeof value !== 'string') return value == null ? '' : String(value).trim();
+    let v = value.trim();
+    if (!headerKey) return v;
+    const single = undoubleHeaderText(headerKey);
+    // Strip undoubled header first (e.g. "Preferred Name" from "Preferred NameAsiata, Nicholas")
+    if (single && v.startsWith(single)) v = v.slice(single.length).trim();
+    // Also strip full raw header if present (e.g. doubled "Preferred NamePreferred Name")
+    if (headerKey.length > 0 && v.startsWith(headerKey)) v = v.slice(headerKey.length).trim();
+    return v;
+  }
+
+  /** Clean LCR cell values: strip header prefix, then normalize AGE/GENDER. */
+  function cleanCellValue(key, value, headerKey) {
+    let v = stripHeaderFromValue(value, headerKey);
+    if (key === 'AGE') return v.replace(/^Age\s*/i, '').trim();
+    if (key === 'GENDER') {
+      const after = v.replace(/^Gender\s*/i, '').trim();
+      const c = (after[0] || '').toUpperCase();
+      return c === 'M' || c === 'F' ? c : after;
+    }
+    return v;
+  }
+
+  const normalizedMembers = members.filter(m => {
+    const keys = Object.keys(m);
+    const isHeaderRow = keys.every(k => (m[k] || '').toString().trim() === (k || '').trim());
+    return !isHeaderRow;
+  }).map(m => {
+    const row = {};
+    Object.keys(m).forEach(oldKey => {
+      const newKey = keyMap[oldKey] || undoubleHeaderText(oldKey).replace(/\s+/g, '_').replace(/[()]/g, '').toUpperCase();
+      const raw = m[oldKey] != null ? String(m[oldKey]).trim() : '';
+      row[newKey] = cleanCellValue(newKey, raw, oldKey);
+    });
+    // If HEAD_OF_HOUSE is empty (e.g. row 362 in LCR), use PREFERRED_NAME so import validation passes
+    if (!row.HEAD_OF_HOUSE || !row.HEAD_OF_HOUSE.trim()) {
+      row.HEAD_OF_HOUSE = (row.PREFERRED_NAME && row.PREFERRED_NAME.trim()) ? row.PREFERRED_NAME : 'Unknown';
+    }
+    return row;
+  });
+  return { columns: normalizedCols, members: normalizedMembers };
+}
+
+/**
+ * Extract { columns, members } from Next.js RSC (text/x-component) response.
+ * Finds "members" and "columns" keys and parses their JSON arrays (balanced brackets).
+ */
+function extractMembersFromRSC(text) {
+  if (!text || typeof text !== 'string') return null;
+  function extractArray(key) {
+    const keyStr = `"${key}"`;
+    const idx = text.indexOf(keyStr);
+    if (idx === -1) return null;
+    const start = text.indexOf('[', idx);
+    if (start === -1) return null;
+    let depth = 1;
+    let i = start + 1;
+    let inString = false;
+    let escape = false;
+    let quote = '';
+    while (i < text.length && depth > 0) {
+      const c = text[i];
+      if (escape) { escape = false; i++; continue; }
+      if (inString) {
+        if (c === '\\') escape = true;
+        else if (c === quote) inString = false;
+        i++;
+        continue;
+      }
+      if (c === '"' || c === "'") { inString = true; quote = c; i++; continue; }
+      if (c === '[') depth++;
+      else if (c === ']') depth--;
+      i++;
+    }
+    if (depth !== 0) return null;
+    try {
+      return JSON.parse(text.slice(start, i));
+    } catch (_) {
+      return null;
+    }
+  }
+  const members = extractArray('members');
+  if (!members || !Array.isArray(members)) return null;
+  const columns = extractArray('columns');
+  return {
+    columns: Array.isArray(columns) ? columns : [],
+    members
+  };
+}
+
 class LCRAutomation {
   constructor() {
     this.browser = null;
     this.page = null;
     this.username = process.env.LCR_USERNAME;
     this.password = process.env.LCR_PASSWORD;
-    this.reportId = process.env.LCR_REPORT_ID || '270dd333-769f-43a0-b73e-d27cc6d5d730';
+    this.reportId = process.env.LCR_REPORT_ID || '33D30D27-9F76-A043-B73E-D27CC6D5D730';
     this.outputFile = process.env.LCR_OUTPUT_FILE || './lcr-data.json';
   }
 
@@ -374,6 +532,18 @@ class LCRAutomation {
 
   async fetchMemberData() {
     console.log('📊 Fetching member data...');
+
+    // URL candidates in scope for both initial try and alternative approach
+    const reportUrlCandidates = [
+      `https://mltp-api.churchofjesuschrist.org/report/custom-reports/run-report/${this.reportId}?lang=eng`,
+      `https://mltp-api.churchofjesuschrist.org/api/report/custom-reports/run-report/${this.reportId}?lang=eng`,
+      `https://lcr.churchofjesuschrist.org/mlt/report/create-a-report/custom-reports-details/${this.reportId}?lang=eng`,
+      `https://lcr.churchofjesuschrist.org/mlt/report/create-a-report/criteria/${this.reportId}?lang=eng`,
+      `https://lcr.churchofjesuschrist.org/mlt/api/report/custom-reports/run-report/${this.reportId}?lang=eng`,
+      `https://lcr.churchofjesuschrist.org/api/mlt/report/custom-reports/run-report/${this.reportId}?lang=eng`,
+      `https://lcr.churchofjesuschrist.org/mlt/report/create-a-report/custom-reports-run-report/${this.reportId}?lang=eng`,
+      `https://lcr.churchofjesuschrist.org/api/report/custom-reports/run-report/${this.reportId}?lang=eng`
+    ];
     
     try {
       // First, let's make sure we're on the LCR main page
@@ -388,44 +558,87 @@ class LCRAutomation {
         fullPage: true 
       });
       console.log('📸 Screenshot saved: debug-before-fetch.png');
-      
-      // Navigate to the API endpoint directly
-      const apiUrl = `https://lcr.churchofjesuschrist.org/api/report/custom-reports/run-report/${this.reportId}?lang=eng`;
-      
-      console.log(`🔗 Fetching from: ${apiUrl}`);
-      
-      // Make the API request with better error handling
-      const response = await this.page.evaluate(async (url) => {
-        try {
-          console.log('🌐 Making fetch request to:', url);
-          
+
+      let response = null;
+      let lastError = null;
+
+      // Try POST to custom-reports-details (Next.js RSC) - this is how the LCR UI loads report data
+      const detailsPostUrl = `https://lcr.churchofjesuschrist.org/mlt/report/create-a-report/custom-reports-details/${this.reportId}`;
+      console.log(`🔗 Trying POST (RSC): ${detailsPostUrl}`);
+      try {
+        const postResult = await this.page.evaluate(async (url) => {
           const res = await fetch(url, {
+            method: 'POST',
             credentials: 'include',
             headers: {
-              'Accept': 'application/json',
-              'Content-Type': 'application/json'
-            }
+              'Accept': 'text/x-component',
+              'Content-Type': 'text/plain;charset=UTF-8'
+            },
+            body: ''
           });
-          
-          console.log('📡 Response status:', res.status);
-          console.log('📡 Response headers:', Object.fromEntries(res.headers.entries()));
-          
-          if (!res.ok) {
-            const errorText = await res.text();
-            console.error('❌ API Error:', res.status, res.statusText);
-            console.error('❌ Error body:', errorText);
-            throw new Error(`HTTP ${res.status}: ${res.statusText} - ${errorText}`);
+          if (!res.ok) return { ok: false, status: res.status, text: await res.text() };
+          const text = await res.text();
+          return { ok: true, text };
+        }, detailsPostUrl);
+        if (postResult.ok && postResult.text) {
+          const extracted = extractMembersFromRSC(postResult.text);
+          if (extracted && Array.isArray(extracted.members)) {
+            response = extracted;
+            console.log(`✅ Data fetched from POST ${detailsPostUrl} (${extracted.members.length} members)`);
+          } else {
+            await fs.writeFile(
+              path.join(__dirname, '../debug-rsc-response.txt'),
+              postResult.text.slice(0, 200000),
+              'utf8'
+            ).catch(() => {});
+            console.log('📄 Saved raw POST response to debug-rsc-response.txt');
           }
-          
-          const data = await res.json();
-          console.log('✅ API response received:', data);
-          return data;
-          
-        } catch (error) {
-          console.error('❌ Fetch error:', error);
-          throw error;
         }
-      }, apiUrl);
+      } catch (err) {
+        console.log(`⚠️ POST failed: ${err.message}`);
+      }
+
+      if (!response) {
+      for (const apiUrl of reportUrlCandidates) {
+        console.log(`🔗 Trying: ${apiUrl}`);
+        try {
+          const data = await this.page.evaluate(async (url) => {
+            const res = await fetch(url, {
+              credentials: 'include',
+              headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+              }
+            });
+            if (!res.ok) {
+              const errorText = await res.text();
+              throw new Error(`HTTP ${res.status}: ${res.statusText} - ${errorText}`);
+            }
+            const contentType = res.headers.get('Content-Type') || '';
+            if (!contentType.includes('application/json')) {
+              throw new Error('Response is not JSON');
+            }
+            return await res.json();
+          }, apiUrl);
+          const members = data?.members ?? data?.data?.members;
+          if (data && Array.isArray(members)) {
+            response = {
+              columns: data.columns ?? data.data?.columns ?? [],
+              members
+            };
+            console.log(`✅ Data fetched from: ${apiUrl}`);
+            break;
+          }
+        } catch (err) {
+          console.log(`⚠️ Failed: ${err.message}`);
+          lastError = err;
+        }
+      }
+      }
+
+      if (!response) {
+        throw lastError || new Error('All report URL candidates failed');
+      }
 
       console.log(`✅ Data fetched successfully: ${response.members?.length || 0} members`);
       
@@ -447,46 +660,158 @@ class LCRAutomation {
         fullPage: true 
       });
       
-      // Try alternative approach - navigate to the reports page first
-      console.log('🔄 Trying alternative approach - navigating to reports page...');
+      // Try alternative approach - navigate to report details page then POST (same as LCR UI)
+      console.log('🔄 Trying alternative approach - navigating to report details page...');
       try {
-        await this.page.goto('https://lcr.churchofjesuschrist.org/report/custom-reports', {
-          waitUntil: 'networkidle2',
-          timeout: 30000
+        const detailsPageUrl = `https://lcr.churchofjesuschrist.org/mlt/report/create-a-report/custom-reports-details/${this.reportId}`;
+        await this.page.goto(detailsPageUrl, { waitUntil: 'networkidle2', timeout: 30000 });
+        console.log('📄 Details page loaded:', this.page.url());
+        await new Promise(r => setTimeout(r, 3000));
+        try {
+          await this.page.waitForSelector('table[role="grid"], table, [role="grid"]', { timeout: 15000 });
+          await new Promise(r => setTimeout(r, 2000));
+        } catch (_) {}
+
+        const postResult = await this.page.evaluate(async (url) => {
+          const res = await fetch(url, {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Accept': 'text/x-component', 'Content-Type': 'text/plain;charset=UTF-8' },
+            body: ''
+          });
+          if (!res.ok) return { ok: false, status: res.status };
+          return { ok: true, text: await res.text() };
+        }, detailsPageUrl);
+        if (postResult.ok && postResult.text) {
+          const extracted = extractMembersFromRSC(postResult.text);
+          if (extracted && Array.isArray(extracted.members)) {
+            console.log(`✅ Alternative approach (POST from details page): ${extracted.members.length} members`);
+            return extracted;
+          }
+          // Save raw POST response for debugging RSC format
+          await fs.writeFile(
+            path.join(__dirname, '../debug-rsc-response.txt'),
+            postResult.text.slice(0, 500000),
+            'utf8'
+          ).catch(() => {});
+          console.log('📄 Saved raw POST response to debug-rsc-response.txt (for parser tuning)');
+        }
+
+        // Report is on screen – try to read report data from the page (table or React state)
+        console.log('🔍 Extracting report data from page DOM/state...');
+        const fromPage = await this.page.evaluate(() => {
+          const out = { columns: [], members: [] };
+          // Try __NEXT_DATA__ or similar
+          const nd = document.getElementById('__NEXT_DATA__');
+          if (nd && nd.textContent) {
+            try {
+              const d = JSON.parse(nd.textContent);
+              const props = d?.props?.pageProps || d?.props || {};
+              const members = props.members ?? props.reportData?.members ?? props.data?.members;
+              const columns = props.columns ?? props.reportData?.columns ?? props.data?.columns;
+              if (Array.isArray(members) && members.length > 0) {
+                out.members = members;
+                if (Array.isArray(columns)) out.columns = columns;
+                return out;
+              }
+            } catch (_) {}
+          }
+          // Try data in script tags (RSC payload often in __next_f)
+          const scripts = document.querySelectorAll('script');
+          for (const s of scripts) {
+            const t = s.textContent || '';
+            const idx = t.indexOf('"members"');
+            if (idx === -1) continue;
+            const start = t.indexOf('[', idx);
+            if (start === -1) continue;
+            let depth = 1, i = start + 1, inStr = false, q = '';
+            while (i < t.length && depth > 0) {
+              const c = t[i];
+              if (inStr) {
+                if (c === '\\') i++;
+                else if (c === q) inStr = false;
+                i++;
+                continue;
+              }
+              if (c === '"' || c === "'") { inStr = true; q = c; i++; continue; }
+              if (c === '[') depth++;
+              else if (c === ']') depth--;
+              i++;
+            }
+            if (depth !== 0) continue;
+            try {
+              const arr = JSON.parse(t.slice(start, i));
+              if (Array.isArray(arr) && arr.length > 0 && typeof arr[0] === 'object') {
+                out.members = arr;
+                return out;
+              }
+            } catch (_) {}
+          }
+          // Fallback: table with headers
+          const table = document.querySelector('table[role="grid"], table.report-table, table');
+          if (table) {
+            const headers = [];
+            const thead = table.querySelector('thead tr, tr');
+            if (thead) {
+              thead.querySelectorAll('th, td').forEach(cell => headers.push((cell.textContent || '').trim()));
+            }
+            const rows = table.querySelectorAll('tbody tr, tr');
+            const members = [];
+            rows.forEach((row, ri) => {
+              if (ri === 0 && !table.querySelector('thead')) return;
+              const cells = row.querySelectorAll('td, th');
+              const obj = {};
+              cells.forEach((cell, ci) => {
+                const key = headers[ci] || `col${ci}`;
+                obj[key] = (cell.textContent || '').trim();
+              });
+              if (Object.keys(obj).length) members.push(obj);
+            });
+            if (members.length > 0) {
+              out.columns = headers.length ? headers.map((h, i) => ({ key: h || `col${i}`, label: h || `Column ${i + 1}` })) : Object.keys(members[0]).map(k => ({ key: k, label: k }));
+              out.members = members;
+              return out;
+            }
+          }
+          return out;
         });
-        
-        console.log('📄 Reports page loaded');
-        
-        // Take screenshot of reports page
-        await this.page.screenshot({ 
+        if (fromPage.members && fromPage.members.length > 0) {
+          console.log(`✅ Extracted ${fromPage.members.length} members from page`);
+          const normalized = normalizeTableDataForImport(fromPage.columns || [], fromPage.members);
+          console.log('📋 Normalized column keys for app import (e.g. PREFERRED_NAME, HEAD_OF_HOUSE)');
+          return normalized;
+        }
+
+        await this.page.screenshot({
           path: path.join(__dirname, '../debug-reports-page.png'),
-          fullPage: true 
+          fullPage: true
         });
         console.log('📸 Screenshot saved: debug-reports-page.png');
-        
-        // Try the API call again
-        const apiUrl = `https://lcr.churchofjesuschrist.org/api/report/custom-reports/run-report/${this.reportId}?lang=eng`;
-        console.log(`🔗 Retrying API call: ${apiUrl}`);
-        
-        const response = await this.page.evaluate(async (url) => {
-          const res = await fetch(url, {
-            credentials: 'include',
-            headers: {
-              'Accept': 'application/json',
-              'Content-Type': 'application/json'
+
+        for (const apiUrl of reportUrlCandidates) {
+          console.log(`🔗 Retrying API: ${apiUrl}`);
+          try {
+            const data = await this.page.evaluate(async (url) => {
+              const res = await fetch(url, {
+                credentials: 'include',
+                headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' }
+              });
+              if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+              if (!(res.headers.get('Content-Type') || '').includes('application/json')) throw new Error('Not JSON');
+              return await res.json();
+            }, apiUrl);
+            const members = data?.members ?? data?.data?.members;
+            if (data && Array.isArray(members)) {
+              const normalized = {
+                columns: data.columns ?? data.data?.columns ?? [],
+                members
+              };
+              console.log(`✅ Alternative approach successful: ${members.length} members`);
+              return normalized;
             }
-          });
-          
-          if (!res.ok) {
-            throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-          }
-          
-          return await res.json();
-        }, apiUrl);
-        
-        console.log(`✅ Alternative approach successful: ${response.members?.length || 0} members`);
-        return response;
-        
+          } catch (_) { /* try next URL */ }
+        }
+        throw new Error('All retry URLs failed');
       } catch (altError) {
         console.error('❌ Alternative approach also failed:', altError.message);
         throw error; // Throw the original error

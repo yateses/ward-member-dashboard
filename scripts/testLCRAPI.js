@@ -18,7 +18,7 @@ class LCRAPITester {
     this.page = null;
     this.username = process.env.LCR_USERNAME;
     this.password = process.env.LCR_PASSWORD;
-    this.reportId = process.env.LCR_REPORT_ID || '270dd333-769f-43a0-b73e-d27cc6d5d730';
+    this.reportId = process.env.LCR_REPORT_ID || '33D30D27-9F76-A043-B73E-D27CC6D5D730';
   }
 
   async init() {

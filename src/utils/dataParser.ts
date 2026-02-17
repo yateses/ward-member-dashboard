@@ -41,17 +41,25 @@ export function parseClipboardData(clipboardText: string): MemberImportData[] {
   return data
 }
 
+/** Normalize LCR cell values that include column name prefix (e.g. "Age19" -> "19", "GenderM" -> "M"). */
+function normalizeLCRValue(key: keyof MemberImportData, value: string | undefined): string {
+  const v = (value ?? '').trim()
+  if (key === 'AGE') return v.replace(/^Age\s*/i, '').trim()
+  if (key === 'GENDER') {
+    const after = v.replace(/^Gender\s*/i, '').trim()
+    const c = (after[0] ?? '').toUpperCase()
+    return c === 'M' || c === 'F' ? c : after
+  }
+  return v
+}
+
 export function validateImportData(data: MemberImportData[]): { valid: boolean; errors: string[] } {
   const errors: string[] = []
   
   data.forEach((row, index) => {
-    // Only require the most essential fields
+    // Require preferred name; empty head of house is allowed (import uses PREFERRED_NAME as fallback)
     if (!row.PREFERRED_NAME?.trim()) {
       errors.push(`Row ${index + 1}: Missing preferred name`)
-    }
-    
-    if (!row.HEAD_OF_HOUSE?.trim()) {
-      errors.push(`Row ${index + 1}: Missing head of house`)
     }
     
     // Make address optional - many records might not have addresses
@@ -59,14 +67,14 @@ export function validateImportData(data: MemberImportData[]): { valid: boolean; 
     //   errors.push(`Row ${index + 1}: Missing address`)
     // }
     
-    // Make age validation more flexible - allow empty or invalid ages
-    const age = parseInt(row.AGE)
+    // Normalize LCR-prefixed values before validation
+    const ageStr = normalizeLCRValue('AGE', row.AGE)
+    const genderStr = normalizeLCRValue('GENDER', row.GENDER)
+    const age = parseInt(ageStr)
     if (row.AGE && row.AGE.trim() && (isNaN(age) || age < 0 || age > 120)) {
       errors.push(`Row ${index + 1}: Invalid age: ${row.AGE}`)
     }
-    
-    // Make gender validation more flexible - allow empty or invalid genders
-    if (row.GENDER && row.GENDER.trim() && !['M', 'F'].includes(row.GENDER)) {
+    if (row.GENDER && row.GENDER.trim() && !['M', 'F'].includes(genderStr)) {
       errors.push(`Row ${index + 1}: Invalid gender: ${row.GENDER}`)
     }
   })
@@ -97,10 +105,11 @@ export function formatImportSummary(data: MemberImportData[]): {
   }
   
   data.forEach(row => {
-    // Handle age more gracefully
+    const ageStr = normalizeLCRValue('AGE', row.AGE)
+    const genderStr = normalizeLCRValue('GENDER', row.GENDER)
     let age = 0
-    if (row.AGE && row.AGE.trim()) {
-      const parsedAge = parseInt(row.AGE)
+    if (ageStr) {
+      const parsedAge = parseInt(ageStr)
       if (!isNaN(parsedAge) && parsedAge >= 0 && parsedAge <= 120) {
         age = parsedAge
       }
@@ -110,10 +119,8 @@ export function formatImportSummary(data: MemberImportData[]): {
     else if (age < 30) ageGroups.youth++
     else ageGroups.adults++
     
-    // Handle gender more gracefully
-    if (row.GENDER === 'M') genderBreakdown.male++
-    else if (row.GENDER === 'F') genderBreakdown.female++
-    // If gender is missing or invalid, we don't count it in the breakdown
+    if (genderStr === 'M') genderBreakdown.male++
+    else if (genderStr === 'F') genderBreakdown.female++
   })
   
   return {
