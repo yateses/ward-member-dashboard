@@ -13,6 +13,9 @@
     "lint": "eslint . --fix",
     "fetch-lcr": "node scripts/fetchLCRData.js",
     "test-automation": "node scripts/testAutomation.js",
+    "test-login": "node scripts/testLCRLogin.js",
+    "test-login-process": "node scripts/testLoginProcess.js",
+    "test-api": "node scripts/testLCRAPI.js",
     "api-server": "node scripts/runAutomationAPI.js",
     "create-user": "node scripts/createUser.js"
   },

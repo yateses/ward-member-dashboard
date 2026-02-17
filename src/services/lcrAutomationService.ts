@@ -55,7 +55,7 @@ export class LCRAutomationService {
       
       return {
         success: false,
-        error: 'In development mode, please run "npm run fetch-lcr" manually to fetch LCR data, then import the generated file.'
+        error: 'In development mode, please run "npm run fetch-lcr" manually to fetch LCR data, then import the generated file. The login process has been updated for the new LCR login page layout.'
       }
       
     } catch (error) {

@@ -1,7 +1,7 @@
 <template>
   <div class="image-map-view">
     <div class="view-header">
-      <h1>Area Map</h1>
+      <h1>Ward Map</h1>
       <div class="header-controls">
         <button 
           @click="isAdminMode = !isAdminMode" 
@@ -46,7 +46,7 @@
               id="imageAlt"
               v-model="configForm.imageAlt" 
               type="text" 
-              placeholder="Description of the map"
+              placeholder="Description of the ward map"
               class="form-input"
             />
           </div>

@@ -94,6 +94,14 @@ onMounted(() => {
   }
 })
 
+const resetForm = () => {
+  form.value = {
+    title: '',
+    category: '',
+    priority: 'medium'
+  }
+}
+
 const saveTodoItem = () => {
   if (!isValid.value) return
   
@@ -102,6 +110,9 @@ const saveTodoItem = () => {
     category: form.value.category.trim(),
     priority: form.value.priority
   })
+  
+  // Reset form after saving
+  resetForm()
 }
 </script>
 
