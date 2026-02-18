@@ -54,7 +54,9 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { Capacitor } from '@capacitor/core'
 import { authService } from '@/services/authService'
+import { saveCredentials } from '@/services/nativeCredentialStorage'
 
 const email = ref('')
 const password = ref('')
@@ -76,6 +78,9 @@ const handleLogin = async () => {
 
   try {
     await authService.login(email.value, password.value)
+    if (Capacitor.isNativePlatform()) {
+      await saveCredentials(email.value, password.value)
+    }
     emit('loginSuccess')
   } catch (err: any) {
     error.value = err.message

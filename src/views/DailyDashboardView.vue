@@ -1,8 +1,6 @@
 <template>
   <div class="daily-dashboard">
-    <div class="header">
-      <h1>📅 Daily Dashboard</h1>
-    </div>
+    <!-- Title "Daily Dashboard" is shown in the fixed app header when on this route -->
 
     <!-- Loading State -->
     <div v-if="isLoading" class="loading-state">
@@ -600,18 +598,26 @@ watch(() => memberStore.members, () => {
 }
 
 .header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
+  margin: -2rem -2rem 1.5rem -2rem;
+  padding: 0.75rem 2rem;
   flex-wrap: wrap;
   gap: 1rem;
+  background: linear-gradient(135deg, #1a5f7a 0%, #2c7a9b 100%);
+  box-shadow: 0 2px 8px rgba(26, 95, 122, 0.3);
 }
 
 .header h1 {
   margin: 0;
-  color: #2c3e50;
-  font-size: 2rem;
+  color: white;
+  font-size: 1.5rem;
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .day-selector {
@@ -1349,6 +1355,8 @@ watch(() => memberStore.members, () => {
   }
   
   .header {
+    margin: -1rem -1rem 1rem -1rem;
+    padding: 0.75rem 1rem;
     flex-direction: column;
     align-items: stretch;
     gap: 1rem;
@@ -1519,6 +1527,11 @@ watch(() => memberStore.members, () => {
 @media (max-width: 480px) {
   .daily-dashboard {
     padding: 0.75rem;
+  }
+  
+  .header {
+    margin: -0.75rem -0.75rem 0.75rem -0.75rem;
+    padding: 0.5rem 0.75rem;
   }
   
   .header h1 {

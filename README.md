@@ -73,6 +73,22 @@ npm run dev
 
 The application will be available at `http://localhost:5173`
 
+### 6. Android app (optional)
+
+The project includes Capacitor so you can run the same app on your Android phone with **daily birthday and anniversary notifications** (Ignore / Draft Text). The website is unchanged; notification logic runs only in the native app.
+
+**👉 New to building Android apps?** See **[ANDROID-APP-STEPS.md](ANDROID-APP-STEPS.md)** for a full beginner step-by-step guide (installing Android Studio, enabling USB debugging, building, and running on your phone).
+
+**Quick version** (once Android Studio and your phone are set up):
+
+```bash
+npm run build
+npx cap sync android
+npx cap open android
+```
+
+In Android Studio, click the green **Run** button to install and run the app on your phone. When you open the app and sign in, it will request notification permission and schedule today’s birthdays and anniversaries. After changing the web app, run `npm run build` and `npx cap sync android`, then click **Run** again in Android Studio.
+
 ## Usage
 
 ### Importing LCR Data

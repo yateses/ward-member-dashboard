@@ -1,18 +1,15 @@
 <template>
   <div>
-    <!-- Show loading spinner while checking auth state -->
     <div v-if="loading" class="auth-loading">
       <div class="loading-spinner"></div>
-      <p>Loading...</p>
+      <p>{{ loadingMessage }}</p>
     </div>
 
-    <!-- Show login form if not authenticated -->
-    <LoginForm 
-      v-else-if="!isAuthenticated" 
-      @login-success="handleLoginSuccess" 
+    <LoginForm
+      v-else-if="!isAuthenticated"
+      @login-success="handleLoginSuccess"
     />
 
-    <!-- Show main app if authenticated -->
     <div v-else>
       <slot />
     </div>
@@ -21,26 +18,50 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { Capacitor } from '@capacitor/core'
 import { authService } from '@/services/authService'
+import { getCredentials, clearCredentials } from '@/services/nativeCredentialStorage'
 import LoginForm from './LoginForm.vue'
 
 const loading = ref(true)
+const loadingMessage = ref('Loading...')
 const isAuthenticated = ref(false)
 
 const handleLoginSuccess = () => {
   isAuthenticated.value = true
 }
 
-onMounted(() => {
-  // Check if user is already authenticated
+onMounted(async () => {
   const checkAuth = () => {
-    isAuthenticated.value = authService.isAuthenticated()
-    loading.value = false
+    if (authService.isAuthenticated()) {
+      isAuthenticated.value = true
+      loading.value = false
+      return
+    }
+    if (!Capacitor.isNativePlatform()) {
+      loading.value = false
+      return
+    }
+    tryAutoLogin()
   }
-
-  // Small delay to ensure Firebase auth is initialized
   setTimeout(checkAuth, 100)
 })
+
+async function tryAutoLogin() {
+  const stored = await getCredentials()
+  if (!stored) {
+    loading.value = false
+    return
+  }
+  loadingMessage.value = 'Signing in...'
+  try {
+    await authService.login(stored.email, stored.password)
+    isAuthenticated.value = true
+  } catch {
+    await clearCredentials()
+  }
+  loading.value = false
+}
 </script>
 
 <style scoped>

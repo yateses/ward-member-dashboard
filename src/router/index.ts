@@ -1,11 +1,17 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import DashboardView from '../views/DashboardView.vue'
+import DailyDashboardView from '../views/DailyDashboardView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
+      name: 'daily',
+      component: DailyDashboardView,
+    },
+    {
+      path: '/dashboard',
       name: 'dashboard',
       component: DashboardView,
     },
@@ -36,8 +42,7 @@ const router = createRouter({
     },
     {
       path: '/daily',
-      name: 'daily',
-      component: () => import('../views/DailyDashboardView.vue'),
+      redirect: '/',
     },
     {
       path: '/maps',
